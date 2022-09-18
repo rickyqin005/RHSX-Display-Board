@@ -26,7 +26,7 @@ async function update() {
 }
 
 function displayBoardString(data) {
-    let str = `Market is **${data.marketIsOpen ? 'OPEN' : 'CLOSED'}**  -  Last updated ${Tools.dateStr(new Date())}\n`;
+    let str = `Market is **${data.market.isOpen ? 'OPEN' : 'CLOSED'}**  -  Last updated ${Tools.dateStr(new Date())}\n`;
     const mainTable = [ ['Ticker', 'Last', 'Bid', 'Ask', 'Volume'] ];
     const mainTableAlign = ['l', 'r', 'r', 'r', 'r'];
     for(const symbol in data.tickers) {
