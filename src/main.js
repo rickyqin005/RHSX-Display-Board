@@ -15,13 +15,14 @@ const Tools = require('./utils/Tools');
 const createTable = require('text-table');
 
 async function update() {
-    const startTime = new Date();
+    const timerLabel = Tools.dateStr(new Date());
+    console.time(timerLabel);
     try {
         await message.edit(displayBoardString((await axios.get(URL)).data));
     } catch(error) {
         console.log(error);
     }
-    console.log(`updated display board at ${Tools.dateStr(new Date())}, took ${new Date()-startTime}ms`);
+    console.timeEnd(timerLabel);
     setTimeout(update, REFRESH_RATE);
 }
 
@@ -29,16 +30,14 @@ function displayBoardString(data) {
     let str = `Market is **${data.market.isOpen ? 'OPEN' : 'CLOSED'}**  -  Last updated ${Tools.dateStr(new Date())}\n`;
     const mainTable = [ ['Ticker', 'Last', 'Bid', 'Ask', 'Volume'] ];
     const mainTableAlign = ['l', 'r', 'r', 'r', 'r'];
-    for(const symbol in data.tickers) {
-        const ticker = data.tickers[symbol];
+    for(const ticker of data.tickers) {
         const topBid = (ticker.bids.length > 0 ? ticker.bids[0].price : undefined);
         const topAsk = (ticker.asks.length > 0 ? ticker.asks[0].price : undefined);
-        mainTable.push([symbol, Price.format(ticker.lastTradedPrice), Price.format(topBid), Price.format(topAsk), ticker.volume]);
+        mainTable.push([ticker.id, Price.format(ticker.lastTradedPrice), Price.format(topBid), Price.format(topAsk), ticker.volume]);
     }
     str += '```\n' + createTable(mainTable, { align: mainTableAlign }) + '```\n\n';
-    for(const symbol in data.tickers) {
-        const ticker = data.tickers[symbol];
-        str += `Order Book: **${symbol}**\n`;
+    for(const ticker of data.tickers) {
+        str += `Order Book: **${ticker.id}**\n`;
         const orderBookTable = [ ['Bids', '', 'Asks', ''] ];
         const orderBookTableAlign = ['r', 'r', 'r', 'r'];
         let bidsWidth = 0;
